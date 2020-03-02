@@ -1,5 +1,5 @@
 # Author: Daniel Gwon
-# Date: 2/23/2020
+# Date: 3/1/2020
 # Description:
 
 
@@ -8,16 +8,15 @@ class XiangqiGame:
 
     def __init__(self):
         """"""
-
-        self._game_state = ''
+        self._game_state = 'UNFINISHED'         # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
         self._red_in_check = ''
         self._black_in_check = ''
-        self._turn = ''
+        self._turn = 'red'
+        self._board = Board()
 
     def get_game_state(self):
         """"""
-
-        # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
+        return self._game_state
 
     def is_in_check(self, player):
         """
@@ -26,13 +25,52 @@ class XiangqiGame:
         :return: True or False
         """
 
-    def make_move(self, move_from, move_to):
+    def update_turn(self):
+        """"""
+        if self._turn == 'red':
+            self._turn = 'black'
+        else:
+            self._turn = 'red'
+
+    def make_move(self, start, to):
+        """
+        Moves a piece from a start position to a to position
+        :param start: str
+        :param to: str
+        :return: bool or n/a
         """
 
-        :param move_from: string
-        :param move_to: string
-        :return: True or False
-        """
+        # convert start to board indices
+        row_s = int(start[1])
+        col_s = int(start[0])
+        row_t = int(to[1])
+        col_t = int(to[0])
+
+        # game over
+        if self.get_game_state == 'RED_WON' or self.get_game_state == 'BLACK_WON':
+            return False
+        elif self._board.get_piece(row_s, col_s) == '':     # no piece at pos
+            return False
+        # wrong player's piece
+        elif self._board.get_piece(row_s, col_s).get_player() != self._turn:
+            return False
+        elif row_t < 0 or row_t > 9:                        # row pos out of bounds
+            return False
+        elif col_t < 0 or col_t > 8:                        # col pos out of bounds
+            return False
+
+        # make the move
+        result = self._board.make_move(row_s, col_s, row_t, col_t)
+
+        # check if piece able to make move
+        if not result:
+            return False
+
+        # update player's turn
+        self.update_turn()
+
+        # update game state
+        # TODO update the game state after making a move
 
 
 class Board:
@@ -76,14 +114,25 @@ class Board:
         self._board[6][6] = sol_r_4 = Soldier('red', 6, 6)
         self._board[6][8] = sol_r_5 = Soldier('red', 6, 8)
 
-    def update_board(self):
-        pass
+    def make_move(self, row_s, col_s, row_t, col_t):
+        """"""
+
+        result = self._board[row_s][col_s].make_move(row_t, col_t)
+
+        if not result:
+            return False
+
+    def get_piece(self, r, c):
+        """"""
+        return self._board[r][c]
 
     def get_board(self):
         pass
 
     def print_board(self):
-        pass
+        """"""
+        for i in range(len(self._board)-1, -1, -1):
+            print(self._board[i])
 
 
 class Piece:
@@ -98,11 +147,11 @@ class Piece:
     def get_player(self):
         return self._player
 
-    def set_pos(self, new_pos):
-        self._pos = new_pos
+    def get_row(self):
+        return self._row
 
-    def get_pos(self):
-        return self._pos
+    def get_col(self):
+        return self._col
 
 
 class General(Piece):
@@ -111,9 +160,6 @@ class General(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, new_pos):
         """"""
@@ -128,9 +174,6 @@ class Advisor(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, new_pos):
         """"""
@@ -143,9 +186,6 @@ class Elephant(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, new_pos):
         """"""
@@ -158,9 +198,6 @@ class Horse(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, new_pos):
         """"""
@@ -173,13 +210,18 @@ class Chariot(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
-    def make_move(self, new_pos):
+    def make_move(self, r, c):
         """"""
-        # TODO check if move is valid - see General
+        if r == self._row and c > self._col:        # move right
+            for (i in range(self._col, c)):
+                if
+        elif r == self._row and c < self._col:      # move left
+
+        elif r < self._row and c == self._col:      # move forward
+            for (i in range())
+        elif r > self._row and c == self._col:      # move backward
+
 
 
 class Cannon(Piece):
@@ -188,9 +230,6 @@ class Cannon(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, new_pos):
         """"""
@@ -203,14 +242,32 @@ class Soldier(Piece):
     def __init__(self, player, r, c):
         """"""
         super().__init__(player, r, c)
-        self._player = player
-        self._row = r
-        self._col = c
 
     def make_move(self, r, c):
         """"""
         if self._player == 'black':
-            if r < 5:
-                if self._row
-
-
+            if r > 4:                   # before crossing river
+                if r == self._row - 1:  # vertical move
+                    self._row = r
+                else:
+                    return False
+            else:                       # after crossing river
+                if r == self._row - 1:
+                    self._row = r
+                elif c == self._col + 1 or c == self._col - 1:      # horizontal moves
+                    self._col = c
+                else:
+                    return False
+        else:                           # self._player == 'red'
+            if r < 5:                   # before crossing river
+                if r == self._row + 1:  # vertical move
+                    self._row = r
+                else:
+                    return False
+            else:                       # after crossing river
+                if r == self._row + 1:
+                    self._row = r
+                elif c == self._col + 1 or c == self._col - 1:      # horizontal moves
+                    self._col = c
+                else:
+                    return False
