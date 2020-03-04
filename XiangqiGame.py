@@ -271,3 +271,5 @@ class Soldier(Piece):
                     self._col = c
                 else:
                     return False
+
+hello
