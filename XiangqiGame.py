@@ -1,6 +1,19 @@
 # Author: Daniel Gwon
-# Date: 3/1/2020
+# Date: 3/4/2020
 # Description:
+
+
+# Implementation Notes:
+# 1. Game
+#       game won?
+#       in bounds?
+#       has a piece?
+#       right player's piece?
+# 2. Board
+#       only holds pieces
+# 3. Piece
+#       move valid for type of Piece?
+#       move valid given placement of other Pieces on board?
 
 
 class XiangqiGame:
@@ -171,38 +184,38 @@ class Board:
         self._board = [['' for _ in range(9)] for _ in range(10)]   # 10 rows x 9 cols
 
         # set up the board
-        self._board[0][4] = gen_b = General('black', 0, 4)
-        self._board[0][3] = adv_b_1 = Advisor('black', 0, 3)
-        self._board[0][5] = adv_b_2 = Advisor('black', 0, 5)
-        self._board[0][2] = ele_b_1 = Elephant('black', 0, 2)
-        self._board[0][6] = ele_b_2 = Elephant('black', 0, 6)
-        self._board[0][1] = hor_b_1 = Horse('black', 0, 1)
-        self._board[0][7] = hor_b_2 = Horse('black', 0, 7)
-        self._board[0][0] = cha_b_1 = Chariot('black', 0, 0)
-        self._board[0][8] = cha_b_2 = Chariot('black', 0, 8)
-        self._board[2][1] = can_b_1 = Cannon('black', 2, 1)
-        self._board[2][7] = can_b_2 = Cannon('black', 2, 7)
-        self._board[3][0] = sol_b_1 = Soldier('black', 3, 0)
-        self._board[3][2] = sol_b_2 = Soldier('black', 3, 2)
-        self._board[3][4] = sol_b_3 = Soldier('black', 3, 4)
-        self._board[3][6] = sol_b_4 = Soldier('black', 3, 6)
-        self._board[3][8] = sol_b_5 = Soldier('black', 3, 8)
-        self._board[9][4] = gen_r = General('red', 9, 4)
-        self._board[9][3] = adv_r_1 = Advisor('red', 9, 3)
-        self._board[9][5] = adv_r_2 = Advisor('red', 9, 5)
-        self._board[9][2] = ele_r_1 = Elephant('red', 9, 2)
-        self._board[9][6] = ele_r_2 = Elephant('red', 9, 6)
-        self._board[9][1] = hor_r_1 = Horse('red', 9, 1)
-        self._board[9][7] = hor_r_2 = Horse('red', 9, 7)
-        self._board[9][0] = cha_r_1 = Chariot('red', 9, 0)
-        self._board[9][8] = cha_r_2 = Chariot('red', 9, 8)
-        self._board[7][1] = can_r_1 = Cannon('red', 7, 1)
-        self._board[7][7] = can_r_2 = Cannon('red', 7, 7)
-        self._board[6][0] = sol_r_1 = Soldier('red', 6, 0)
-        self._board[6][2] = sol_r_2 = Soldier('red', 6, 2)
-        self._board[6][4] = sol_r_3 = Soldier('red', 6, 4)
-        self._board[6][6] = sol_r_4 = Soldier('red', 6, 6)
-        self._board[6][8] = sol_r_5 = Soldier('red', 6, 8)
+        self._board[0][4] = gen_b = General('black', 0, 4, self._board)
+        self._board[0][3] = adv_b_1 = Advisor('black', 0, 3, self._board)
+        self._board[0][5] = adv_b_2 = Advisor('black', 0, 5, self._board)
+        self._board[0][2] = ele_b_1 = Elephant('black', 0, 2, self._board)
+        self._board[0][6] = ele_b_2 = Elephant('black', 0, 6, self._board)
+        self._board[0][1] = hor_b_1 = Horse('black', 0, 1, self._board)
+        self._board[0][7] = hor_b_2 = Horse('black', 0, 7, self._board)
+        self._board[0][0] = cha_b_1 = Chariot('black', 0, 0, self._board)
+        self._board[0][8] = cha_b_2 = Chariot('black', 0, 8, self._board)
+        self._board[2][1] = can_b_1 = Cannon('black', 2, 1, self._board)
+        self._board[2][7] = can_b_2 = Cannon('black', 2, 7, self._board)
+        self._board[3][0] = sol_b_1 = Soldier('black', 3, 0, self._board)
+        self._board[3][2] = sol_b_2 = Soldier('black', 3, 2, self._board)
+        self._board[3][4] = sol_b_3 = Soldier('black', 3, 4, self._board)
+        self._board[3][6] = sol_b_4 = Soldier('black', 3, 6, self._board)
+        self._board[3][8] = sol_b_5 = Soldier('black', 3, 8, self._board)
+        self._board[9][4] = gen_r = General('red', 9, 4, self._board)
+        self._board[9][3] = adv_r_1 = Advisor('red', 9, 3, self._board)
+        self._board[9][5] = adv_r_2 = Advisor('red', 9, 5, self._board)
+        self._board[9][2] = ele_r_1 = Elephant('red', 9, 2, self._board)
+        self._board[9][6] = ele_r_2 = Elephant('red', 9, 6, self._board)
+        self._board[9][1] = hor_r_1 = Horse('red', 9, 1, self._board)
+        self._board[9][7] = hor_r_2 = Horse('red', 9, 7, self._board)
+        self._board[9][0] = cha_r_1 = Chariot('red', 9, 0, self._board)
+        self._board[9][8] = cha_r_2 = Chariot('red', 9, 8, self._board)
+        self._board[7][1] = can_r_1 = Cannon('red', 7, 1, self._board)
+        self._board[7][7] = can_r_2 = Cannon('red', 7, 7, self._board)
+        self._board[6][0] = sol_r_1 = Soldier('red', 6, 0, self._board)
+        self._board[6][2] = sol_r_2 = Soldier('red', 6, 2, self._board)
+        self._board[6][4] = sol_r_3 = Soldier('red', 6, 4, self._board)
+        self._board[6][6] = sol_r_4 = Soldier('red', 6, 6, self._board)
+        self._board[6][8] = sol_r_5 = Soldier('red', 6, 8, self._board)
 
     def make_move(self, row_s, col_s, row_t, col_t):
         """
@@ -247,16 +260,18 @@ class Piece:
     Creates a Xiangqi piece on the board
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Piece
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
         self._player = player
         self._row = r
         self._col = c
+        self._board = board
 
     def get_player(self):
         """
@@ -279,29 +294,76 @@ class Piece:
         """
         return self._col
 
+    def is_orthogonal(self, r, c):
+        """
+        True if move is orthogonal, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        if self.get_row() == r or self.get_col() == c:
+            return True
+        return False
+
 
 class General(Piece):
     """
     Creates a General Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the General
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherits from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
+
+    def _ax_from_gen(self, r, c):
+        """
+        True if new pos across from General, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        # red General
+        if r <= 2:
+            if self._board[9][c] is General or self._board[8][c] is General or self._board[9][c] is General:
+                return True
+        # black General
+        elif self._board[0][c] is General or self._board[1][c] is General or self._board[2][c] is General:
+                return True
+        return False
+
+    def _one_orthogonal(self, r, c):
+        """
+        True if move is one space orthogonally, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        # calculate magnitude of change in pos
+        mag_r = abs(self.get_row()-r)
+        mag_c = abs(self.get_col()-c)
+
+        # change in r and c can't be greater than one point
+        if mag_r > 1 and mag_c > 1:
+            return False
+        if mag_r == 1 or mag_c == 1 and self.is_orthogonal(r, c):
+            return True
+        return False
 
     def make_move(self, r, c):
         """
         moves the General to the given position
         :param r: int
         :param c: int
-        :return:
+        :return: bool
         """
         # TODO check if move is valid
         # 1. no across from other General
@@ -317,16 +379,17 @@ class Advisor(Piece):
     Creates an Advisor Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Advisor
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherits from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
@@ -347,16 +410,17 @@ class Elephant(Piece):
     Creates an Elephant Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Elephant
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherit from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
@@ -376,16 +440,17 @@ class Horse(Piece):
     Creates a Horse Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Horse
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherit from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
@@ -405,16 +470,17 @@ class Chariot(Piece):
     Creates a Chariot Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Chariot
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherit from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
@@ -444,16 +510,17 @@ class Cannon(Piece):
     Creates a Cannon Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Cannon
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherit from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
@@ -472,16 +539,17 @@ class Soldier(Piece):
     Creates a Soldier Piece
     """
 
-    def __init__(self, player, r, c):
+    def __init__(self, player, r, c, board):
         """
         init the Soldier
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
+        :param board: Board
         """
 
         # inherit from Piece
-        super().__init__(player, r, c)
+        super().__init__(player, r, c, board)
 
     def make_move(self, r, c):
         """
