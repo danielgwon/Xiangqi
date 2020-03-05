@@ -13,8 +13,8 @@ class XiangqiGame:
         init the game
         """
         self._game_state = 'UNFINISHED'         # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
-        self._red_in_check = None
-        self._black_in_check = None
+        self._red_in_check = False
+        self._black_in_check = False
         self._turn = 'red'                      # red starts
         self._board = Board()
 
@@ -25,13 +25,25 @@ class XiangqiGame:
         """
         return self._game_state
 
-    def set_game_state(self, state):
+    def _set_game_state(self, state):
         """
         update the game state
         :param state: str
         :return: n/a
         """
         self._game_state = state
+
+    def _update_check(self, player, state):
+        """
+        sets player to state
+        :param player: str ('red' or 'black')
+        :param state: bool
+        :return: n/a
+        """
+        if player == 'red':
+            self._red_in_check = state
+        else:
+            self._black_in_check = state
 
     def is_in_check(self, player):
         """
@@ -43,7 +55,7 @@ class XiangqiGame:
             return self._red_in_check
         return self._black_in_check
 
-    def update_turn(self):
+    def _update_turn(self):
         """
         updates whose turn it is
         :return: n/a
@@ -53,51 +65,96 @@ class XiangqiGame:
         else:
             self._turn = 'red'
 
+    def _pos_to_ints(self, start, to):
+        """
+        converts pos in str to list indices
+        :param start str
+        :param to: str
+        :return: [int row_s, int col_s, int row_t, int col_t]
+        """
+        row_s = int(start[1])
+        col_s = int(start[0])
+        row_t = int(to[1])
+        col_t = int(to[0])
+        return [row_s, col_s, row_t, col_t]
+
+
+    def _has_a_piece(self, r, c):
+        """
+        True if piece at position, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        if self._board.get_piece(r, c) == '':
+            return False
+        return True
+
+    def _is_player_piece(self, r, c):
+        """
+        True if right piece, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        if self._board.get_piece(r, c).get_player() != self._turn:
+            return False
+        return True
+
+    def _is_in_bounds(self, r, c):
+        """
+        True if in bounds, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        if r < 0 or r > 9:          # row out of bounds
+            return False
+        elif c < 0 or c > 8:        # col out of bounds
+            return False
+        return True
+
     def make_move(self, start, to):
         """
         moves a piece from start position to to position
         :param start: str
         :param to: str
-        :return: bool or n/a
+        :return: bool
         """
 
-        # check for following here:
-        #       move is in bounds
-        #       move has a piece
-        #       move has a piece belonging to correct player
+        # convert start and to to board indices
+        pos = self._pos_to_ints(start, to)
 
-        # convert start to board indices
-        # TODO convert method?
-        row_s = int(start[1])
-        col_s = int(start[0])
-        row_t = int(to[1])
-        col_t = int(to[0])
+        # is game over?
+        if self.get_game_state != 'UNFINISHED':
+            return False
 
-        # game over
-        if self.get_game_state == 'RED_WON' or self.get_game_state == 'BLACK_WON':
+        # start in bounds?
+        if not self._is_in_bounds(pos[0], pos[1]):
             return False
-        elif self._board.get_piece(row_s, col_s) == '':     # no piece at pos
+
+        # to in bounds?
+        if not self._is_in_bounds(pos[2], pos[3]):
             return False
-        # wrong player's piece
-        elif self._board.get_piece(row_s, col_s).get_player() != self._turn:
+
+        # piece at to?
+        if not self._has_a_piece(pos[0], pos[1]):
             return False
-        elif row_t < 0 or row_t > 9:                        # row pos out of bounds
-            return False
-        elif col_t < 0 or col_t > 8:                        # col pos out of bounds
+
+        # right player's piece?
+        if not self._is_player_piece(pos[0], pos[1]):
             return False
 
         # make the move
-        result = self._board.make_move(row_s, col_s, row_t, col_t)
-
-        # check if piece able to make move
-        if not result:
-            return False
+        result = self._board.make_move(pos[0], pos[1], pos[2], pos[3])
 
         # update player's turn
-        self.update_turn()
+        self._update_turn()
 
         # update game state
         # TODO update the game state after making a move
+
+        return result
 
 
 class Board:
