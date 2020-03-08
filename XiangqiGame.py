@@ -146,7 +146,7 @@ class XiangqiGame:
             return False
 
         # make the move
-        result = self._board.[pos[0]][pos[1]].make_move(pos[2], pos[3])
+        result = self._board[pos[0]][pos[1]].make_move(pos[2], pos[3])
 
         # update player's turn
         self._update_turn()
@@ -275,10 +275,73 @@ class Piece:
         :param c: int
         :return: bool
         """
-        if self.get_row() == r or self.get_col() == c:
-            return True
-        return False
+        return self.get_row() == r or self.get_col() == c
 
+    def is_diagonal(self, r, c):
+        """
+        True if move is diagonal, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return abs(self._row - r) == abs(self._col - c)
+
+    def one_point(self, r, c):
+        """
+        True if move is one point from current position, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return abs(self._row - r) <= 1 and abs(self._col - c) <= 1
+
+    def in_castle(self, r, c):
+        """
+        True if move within castle, False otherwise.
+        Used by General and Advisor only
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        # all castles:
+        #   3 <= c <= 5
+        # red castle:
+        #   r <= 2
+        # black castle:
+        #   r >= 7
+
+        if c < 3 or c > 5:
+            return False
+        else:               # col within bounds
+            if self.get_player() == 'red':
+                return r <= 2
+            else:           # black
+                return r >= 7
+
+    def river(self, r, c):
+        """
+        True if across the river, False otherwise
+        Elephant and Soldier only
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        # red
+        if self._player == 'red':
+            return self._row > 4
+        else:       # black
+            return self._row < 5
+
+    def player_piece(self, r, c):
+        """
+        True if own piece in way, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return self._board[r][c].get_player() == self.get_player()
 
 class General(Piece):
     """
@@ -320,17 +383,7 @@ class General(Piece):
         :param c: int
         :return: bool
         """
-
-        # calculate magnitude of change in pos
-        mag_r = abs(self.get_row()-r)
-        mag_c = abs(self.get_col()-c)
-
-        # change in r and c can't be greater than one point
-        if mag_r > 1 and mag_c > 1:
-            return False
-        if mag_r == 1 or mag_c == 1 and self.is_orthogonal(r, c):
-            return True
-        return False
+        return self.is_orthogonal(r, c) and self.one_point(r, c)
 
     def make_move(self, r, c):
         """
@@ -339,13 +392,38 @@ class General(Piece):
         :param c: int
         :return: bool
         """
-        # TODO check if move is valid
-        # 1. no across from other General
-        # 2. single space orthogonally
-        # 3. castle only
-        # 4. not in check following move
-        # else return False
-        # is_valid method?
+
+        # one point orthogonal?
+        # in castle?
+        # across from general?
+        # TODO not in check following move
+
+        # one point orthogonal?
+        if not self._one_orthogonal(r, c):
+            return False
+
+        # within castle?
+        if not self.in_castle(r, c):
+            return False
+
+        # across from general?
+        if not self._ax_from_gen(r, c):
+            return False
+
+        # own piece in way?
+        if self.player_piece(r, c):
+            return False
+
+        # update board
+        self._board[self.get_row()][self.get_col()] = ''    # ok to use private data member from super class?
+        # TODO how to put self in position? repr?
+        #self._board[r][c] =
+
+        # update self
+        self._row = r
+        self._col = c
+
+        return True
 
 
 class Advisor(Piece):
@@ -365,6 +443,15 @@ class Advisor(Piece):
         # inherits from Piece
         super().__init__(player, r, c, board)
 
+    def _one_diagonal(self, r, c):
+        """
+        True if one position diagonally, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return self.is_diagonal(r, c) and self.one_point(r, c)
+
     def make_move(self, r, c):
         """
         moves the Advisor to the given position
@@ -372,11 +459,23 @@ class Advisor(Piece):
         :param c: int
         :return:
         """
-        # TODO check if move is valid
+
         # 1. single space diagonal
         # 2. castle only
-        # is_valid method?
 
+        # single space diagonally?
+        if not self._one_diagonal(r, c):
+            return False
+
+        # in castle?
+        if not self.in_castle(r, c):
+            return False
+
+        # own piece in way?
+        if self.player_piece(r, c):
+            return False
+
+        return True
 
 
 class Elephant(Piece):
@@ -396,6 +495,15 @@ class Elephant(Piece):
         # inherit from Piece
         super().__init__(player, r, c, board)
 
+    def _two_diagonal(self, r, c):
+        """
+        True if two points diagonally, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return self.is_diagonal(r, c) and abs(self._row - r) == 2
+
     def make_move(self, r, c):
         """
         moves the Elephant to the given position
@@ -403,10 +511,32 @@ class Elephant(Piece):
         :param c: int
         :return:
         """
-        # TODO check if move is valid
+
         # 1. two points diagonally
         # 2. can't cross river
-        # is_valid method?
+
+        # across river?
+        if self.river(r, c):
+            return False        # Elephant can't cross river
+
+        # two points diagonal?
+        if not self._two_diagonal(r, c):
+            return False
+
+        # own piece in way?
+        if self.player_piece(r, c):
+            return False
+
+        # update board
+        self._board[self._row][self._col] = ''
+        # TODO how to put self in position? repr?
+        #self._board[r][c] = ?
+
+        # update piece
+        self._row = r
+        self._col = c
+
+        return True
 
 
 class Horse(Piece):
@@ -437,6 +567,8 @@ class Horse(Piece):
         # 1. one point orthogonally, one point diagonally
         # 2. can be blocked
         # is_valid method?
+
+        return True
 
 
 class Chariot(Piece):
@@ -478,6 +610,8 @@ class Chariot(Piece):
         elif r > self._row and c == self._col:      # move backward
 
 
+        return True
+
 
 class Cannon(Piece):
     """
@@ -506,6 +640,8 @@ class Cannon(Piece):
         # TODO check if move is valid
         # 1. any point orthogonally
         # 2. needs screen to capture
+
+        return True
 
 
 class Soldier(Piece):
