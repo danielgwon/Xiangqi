@@ -1,19 +1,6 @@
 # Author: Daniel Gwon
 # Date: 3/4/2020
-# Description:
-
-
-# Implementation Notes:
-# 1. Game
-#       game won?
-#       in bounds?
-#       has a piece?
-#       right player's piece?
-# 2. Board
-#       only holds pieces
-# 3. Piece
-#       move valid for type of Piece?
-#       move valid given placement of other Pieces on board?
+# Description: implements classes to model a game of Xiangqi (Chinese Chess)
 
 
 class XiangqiGame:
@@ -159,7 +146,7 @@ class XiangqiGame:
             return False
 
         # make the move
-        result = self._board.make_move(pos[0], pos[1], pos[2], pos[3])
+        result = self._board.[pos[0]][pos[1]].make_move(pos[2], pos[3])
 
         # update player's turn
         self._update_turn()
@@ -216,19 +203,6 @@ class Board:
         self._board[6][4] = sol_r_3 = Soldier('red', 6, 4, self._board)
         self._board[6][6] = sol_r_4 = Soldier('red', 6, 6, self._board)
         self._board[6][8] = sol_r_5 = Soldier('red', 6, 8, self._board)
-
-    def make_move(self, row_s, col_s, row_t, col_t):
-        """
-        takes piece in the _s position to the _t position
-        :param row_s: int
-        :param col_s: int
-        :param row_t: int
-        :param col_t: int
-        :return: n/a
-        """
-
-        # XiangqiGame will check if move has piece, and if piece belongs to correct player
-        self._board[row_s][col_s].make_move(row_t, col_t)
 
     def get_piece(self, r, c):
         """
