@@ -556,6 +556,23 @@ class Horse(Piece):
         # inherit from Piece
         super().__init__(player, r, c, board)
 
+    def _is_vertical(self, r):
+        """
+        True if move is two points vertically, False otherwise
+        :param r: int
+        :return: bool
+        """
+        return abs(self._row - r) == 2
+
+    def _blocked(self, r, c):
+        """
+        True if Horse blocked for given move, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+
     def make_move(self, r, c):
         """
         moves the Horse to the given position
@@ -567,6 +584,7 @@ class Horse(Piece):
         # 1. one point orthogonally, one point diagonally
         # 2. can be blocked
         # is_valid method?
+        if self._is_vertical(r):
 
         return True
 
