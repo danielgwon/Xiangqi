@@ -92,7 +92,7 @@ class XiangqiGame:
         :param c: int
         :return: bool
         """
-        if self._board.get_piece(r, c) == '':
+        if self._board.get_piece(r, c) == '_':
             return False
         return True
 
@@ -174,7 +174,7 @@ class Board:
         """
 
         # initial board
-        self._board = [['' for _ in range(9)] for _ in range(10)]   # 10 rows x 9 cols
+        self._board = [['_' for _ in range(9)] for _ in range(10)]   # 10 rows x 9 cols
 
         # set up the board
         self._board[0][4] = General('black', 0, 4, self._board, 'g')
@@ -215,7 +215,7 @@ class Board:
         gives the piece at the specified row and col
         :param r: int
         :param c: int
-        :return: '' or Piece
+        :return: '_' or Piece
         """
         return self._board[r][c]
 
@@ -241,13 +241,21 @@ class Board:
         prints the board
         :return: n/a
         """
-        # TODO fix print method
+
         for i in range(len(self._board)-1, -1, -1):
             for j in range(0, len(self._board[i])):
-                if self._board[i][j] != '':
-                    print(self._board[i][j].get_name())
+                if self._board[i][j] != '_':
+                    if j == 8:
+                        print(self._board[i][j].get_name())
+                        continue
+                    print(self._board[i][j].get_name(), end=" ")
                     continue
-            print(self._board[i][j])
+
+                if j == 8:
+                    print(self._board[i][j])
+                    continue
+                print(self._board[i][j], end=" ")
+
 
 
 class Piece:
@@ -415,7 +423,7 @@ class Piece:
         :param c: int
         :return: bool
         """
-        return self._board[r][c] != ''
+        return self._board[r][c] != '_'
 
     def piece_in_way(self, r, c):
         """
@@ -523,7 +531,7 @@ class General(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -582,7 +590,7 @@ class Advisor(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -641,7 +649,7 @@ class Elephant(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -718,7 +726,7 @@ class Horse(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -767,7 +775,7 @@ class Chariot(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -832,7 +840,7 @@ class Cannon(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
@@ -906,12 +914,18 @@ class Soldier(Piece):
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '')
+        self._board.update_board(self._row, self._col, '_')
 
         # update self
         self.update_piece(r, c)
 
         return True
+
+
+class Node:
+    """"""
+
+
 
 
 game = XiangqiGame()
