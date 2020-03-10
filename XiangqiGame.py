@@ -78,7 +78,6 @@ class XiangqiGame:
         col_t = int(to[0])
         return [row_s, col_s, row_t, col_t]
 
-
     def _has_a_piece(self, r, c):
         """
         True if piece at position, False otherwise
@@ -368,7 +367,6 @@ class Piece:
         True if across the river, False otherwise
         Elephant and Soldier only
         :param r: int
-        :param c: int
         :return: bool
         """
 
@@ -404,26 +402,30 @@ class Piece:
         True if Piece in way, False otherwise
         :param r: int
         :param c: int
-        :return: bool
+        :return: int
         """
+        result = 0
+
         if self.is_vertical(c):            # vertical move
             if self.vertical_way(r):       # up
                 for i in range(self._row+1, r):
                     if self.blocked(i, c):
-                        return False
+                        result += 1
             else:                           # down
                 for i in range(self._row-1, r, -1):
                     if self.blocked(i, c):
-                        return False
+                        result += 1
         else:                               # horizontal move
             if self.horizontal_way(c):     # right
                 for i in range(self._col+1, c):
                     if self.blocked(r, i):
-                        return False
+                        result += 1
             else:                           # left
                 for i in range(self._col-1, c, -1):
                     if self.blocked(r, i):
-                        return False
+                        result += 1
+
+        return result
 
 
 class General(Piece):
@@ -456,7 +458,7 @@ class General(Piece):
                 return True
         # black General
         elif self._board[0][c] is General or self._board[1][c] is General or self._board[2][c] is General:
-                return True
+            return True
         return False
 
     def _one_orthogonal(self, r, c):
@@ -490,7 +492,7 @@ class General(Piece):
             return False
 
         # across from general?
-        if not self._ax_from_gen(r, c):
+        if self._ax_from_gen(r, c) and not self.piece_in_way(r, c):
             return False
 
         # own piece in way?
@@ -641,10 +643,10 @@ class Horse(Piece):
 
         # inherit from Piece
         super().__init__(player, r, c, board)
-        self._valid_moves = {[self._row+2,self._col-1],[self._row+2,self._col+1],
-                            [self._row-2,self._col-1],[self._row+2,self._col+1],
-                            [self._row+1,self._col+2],[self._row-1,self._col+2],
-                            [self._row+1,self._col-2],[self._row-1,self._col-2]}
+        self._valid_moves = {[self._row+2, self._col-1], [self._row+2, self._col+1],
+                             [self._row-2, self._col-1], [self._row+2, self._col+1],
+                             [self._row+1, self._col+2], [self._row-1, self._col+2],
+                             [self._row+1, self._col-2], [self._row-1, self._col-2]}
 
     def _is_vertical(self, r):
         """
@@ -777,35 +779,6 @@ class Cannon(Piece):
         """
         return self._player != self._board[r][c].get_player()
 
-    def _screen_in_place(self, r, c):
-        """
-        True if screen in place, False otherwise
-        :param r: int
-        :param c: int
-        :return: bool
-        """
-        # TODO implement this method
-        if self.is_vertical(c):            # vertical move
-            if self.vertical_way(r):       # up
-                for i in range(self._row+1, r):
-                    if self._opponent_piece(i, c):
-                        return False
-                    elif self.player_piece(i, c):
-                        return True
-            else:                           # down
-                for i in range(self._row-1, r, -1):
-                    if self.blocked(i, c):
-                        return False
-        else:                               # horizontal move
-            if self.horizontal_way(c):     # right
-                for i in range(self._col+1, c):
-                    if self.blocked(r, i):
-                        return False
-            else:                           # left
-                for i in range(self._col-1, c, -1):
-                    if self.blocked(r, i):
-                        return False
-
     def make_move(self, r, c):
         """
         moves the Cannon to the given position
@@ -813,9 +786,9 @@ class Cannon(Piece):
         :param c: int
         :return: bool
         """
-        # TODO check if move is valid
+
         # 1. any point orthogonally
-        # 2. needs screen to capture
+        # 2. needs screen to capture (screen can be opponent's Piece)
 
         # orthogonal?
         if not self.is_orthogonal(r, c):
@@ -824,10 +797,16 @@ class Cannon(Piece):
         # move to capture?
         if self._opponent_piece(r, c):
             # screen in place?
-            if self.piece_in_way(r, c):
+            if self.piece_in_way(r, c) > 1:
+                return False
 
+        # piece in way?
+        if self.piece_in_way(r, c):
+            return False
 
-        # move without capture
+        # own piece in specified position?
+        if not self.player_piece(r, c):
+            return False
 
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])
