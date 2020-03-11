@@ -12,11 +12,15 @@ class XiangqiGame:
         """
         init the game
         """
-        self._game_state = 'UNFINISHED'         # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
+        self._game_state = 'UNFINISHED'                 # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
         self._red_in_check = False
         self._black_in_check = False
-        self._turn = 'red'                      # red starts
+        self._turn = 'red'                              # red starts
         self._board = Board()
+        self._ll_red = self._board.get_ll_red()         # red's Pieces
+        self._ll_black = self._board.get_ll_black()     # black's Pieces
+        self._red_gen = self._board[0][4]               # red General
+        self._black_gen = self._board[9][4]             # black General
 
     def get_game_state(self):
         """
@@ -59,7 +63,7 @@ class XiangqiGame:
         :return: bool
         """
         if player == 'red':
-            return self._red_in_check
+            while self._ll_red
         return self._black_in_check
 
     def _update_turn(self):
@@ -163,6 +167,122 @@ class XiangqiGame:
         return result
 
 
+class Node:
+    """Represents a node to be used in a linked list"""
+
+    def __init__(self, data):
+        """
+        init the Node
+        :param data: Piece
+        """
+        self.data = data
+        self.next = None
+
+
+class LinkedList:
+    """Represents a linked list that connects Nodes"""
+
+    def __init__(self):
+        """
+        init the LinkedList
+        """
+        self.head = None
+
+    def rec_add(self, val, current):
+        """
+        A recursive helper method for the add method
+        :param val: Piece
+        :param current: Node
+        :return: n/a
+        """
+
+        # if the list is empty
+        if self.head is None:
+            self.head = Node(val)
+            return
+
+        if current.next is None:                # if at end of list
+            current.next = Node(val)
+        else:
+            self.rec_add(val, current.next)     # continue until None reached
+
+    def add(self, val):
+        """
+        Adds a node containing val to the linked list
+        :param val: Piece
+        :return: n/a
+        """
+        self.rec_add(val, self.head)
+
+    def rec_display(self, current):
+        """
+        A recursive helper method for the display method
+        :param current: Node
+        :return: n/a
+        """
+        if current is None:
+            print()
+        else:
+            print(current.data.get_name(), end=' ')
+            self.rec_display(current.next)
+
+    def display(self):
+        """
+        Prints out the values in the linked list
+        :return: str
+        """
+        self.rec_display(self.head)
+
+    def rec_remove(self, val, current, previous=''):
+        """
+        A recursive helper method for the remove method
+        :param val: Piece
+        :param current: Node
+        :param previous: Node
+        :return: n/a
+        """
+
+        # if the list is empty or val is not in it
+        if current is None:
+            return
+
+        if current.data == val:             # if we find the value
+            if self.head.data == val:       # if removing head value
+                self.head = current.next
+            else:
+                previous.next = current.next
+        else:
+            self.rec_remove(val, current.next, current)
+
+    def remove(self, val):
+        """
+        Removes the node containing val from the linked list
+        :param val: Piece
+        :return: n/a
+        """
+        self.rec_remove(val, self.head)
+
+    def get_data(self, current):
+        """
+        gives the value of each item in the linked list
+        :param current: Node
+        :return: Piece or None
+        """
+        if current is None:
+            return None
+        else:
+            return current.data
+
+    def check(self, r, c):
+        """
+        True if move is possible, False if not
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        self.data.make_move(r, c)
+
+
 class Board:
     """
     Creates a Xiangqi board
@@ -173,42 +293,69 @@ class Board:
         init the board
         """
 
-        # initial board
+        # initialize board
         self._board = [['_' for _ in range(9)] for _ in range(10)]   # 10 rows x 9 cols
 
-        # set up the board
-        self._board[0][4] = General('black', 0, 4, self._board, 'g')
-        self._board[0][3] = Advisor('black', 0, 3, self._board, 'a')
-        self._board[0][5] = Advisor('black', 0, 5, self._board, 'a')
-        self._board[0][2] = Elephant('black', 0, 2, self._board, 'e')
-        self._board[0][6] = Elephant('black', 0, 6, self._board, 'e')
-        self._board[0][1] = Horse('black', 0, 1, self._board, 'h')
-        self._board[0][7] = Horse('black', 0, 7, self._board, 'h')
-        self._board[0][0] = Chariot('black', 0, 0, self._board, 'c')
-        self._board[0][8] = Chariot('black', 0, 8, self._board, 'c')
-        self._board[2][1] = Cannon('black', 2, 1, self._board, 'n')
-        self._board[2][7] = Cannon('black', 2, 7, self._board, 'n')
-        self._board[3][0] = Soldier('black', 3, 0, self._board, 's')
-        self._board[3][2] = Soldier('black', 3, 2, self._board, 's')
-        self._board[3][4] = Soldier('black', 3, 4, self._board, 's')
-        self._board[3][6] = Soldier('black', 3, 6, self._board, 's')
-        self._board[3][8] = Soldier('black', 3, 8, self._board, 's')
-        self._board[9][4] = General('red', 9, 4, self._board, 'g')
-        self._board[9][3] = Advisor('red', 9, 3, self._board, 'a')
-        self._board[9][5] = Advisor('red', 9, 5, self._board, 'a')
-        self._board[9][2] = Elephant('red', 9, 2, self._board, 'e')
-        self._board[9][6] = Elephant('red', 9, 6, self._board, 'e')
-        self._board[9][1] = Horse('red', 9, 1, self._board, 'h')
-        self._board[9][7] = Horse('red', 9, 7, self._board, 'h')
-        self._board[9][0] = Chariot('red', 9, 0, self._board, 'c')
-        self._board[9][8] = Chariot('red', 9, 8, self._board, 'c')
-        self._board[7][1] = Cannon('red', 7, 1, self._board, 'n')
-        self._board[7][7] = Cannon('red', 7, 7, self._board, 'n')
-        self._board[6][0] = Soldier('red', 6, 0, self._board, 's')
-        self._board[6][2] = Soldier('red', 6, 2, self._board, 's')
-        self._board[6][4] = Soldier('red', 6, 4, self._board, 's')
-        self._board[6][6] = Soldier('red', 6, 6, self._board, 's')
-        self._board[6][8] = Soldier('red', 6, 8, self._board, 's')
+        # set up board
+        self._board[0][4] = General('red', 0, 4, self._board, 'g')
+        self._board[0][3] = Advisor('red', 0, 3, self._board, 'a')
+        self._board[0][5] = Advisor('red', 0, 5, self._board, 'a')
+        self._board[0][2] = Elephant('red', 0, 2, self._board, 'e')
+        self._board[0][6] = Elephant('red', 0, 6, self._board, 'e')
+        self._board[0][1] = Horse('red', 0, 1, self._board, 'h')
+        self._board[0][7] = Horse('red', 0, 7, self._board, 'h')
+        self._board[0][0] = Chariot('red', 0, 0, self._board, 'c')
+        self._board[0][8] = Chariot('red', 0, 8, self._board, 'c')
+        self._board[2][1] = Cannon('red', 2, 1, self._board, 'n')
+        self._board[2][7] = Cannon('red', 2, 7, self._board, 'n')
+        self._board[3][0] = Soldier('red', 3, 0, self._board, 's')
+        self._board[3][2] = Soldier('red', 3, 2, self._board, 's')
+        self._board[3][4] = Soldier('red', 3, 4, self._board, 's')
+        self._board[3][6] = Soldier('red', 3, 6, self._board, 's')
+        self._board[3][8] = Soldier('red', 3, 8, self._board, 's')
+        self._board[9][4] = General('black', 9, 4, self._board, 'g')
+        self._board[9][3] = Advisor('black', 9, 3, self._board, 'a')
+        self._board[9][5] = Advisor('black', 9, 5, self._board, 'a')
+        self._board[9][2] = Elephant('black', 9, 2, self._board, 'e')
+        self._board[9][6] = Elephant('black', 9, 6, self._board, 'e')
+        self._board[9][1] = Horse('black', 9, 1, self._board, 'h')
+        self._board[9][7] = Horse('black', 9, 7, self._board, 'h')
+        self._board[9][0] = Chariot('black', 9, 0, self._board, 'c')
+        self._board[9][8] = Chariot('black', 9, 8, self._board, 'c')
+        self._board[7][1] = Cannon('black', 7, 1, self._board, 'n')
+        self._board[7][7] = Cannon('black', 7, 7, self._board, 'n')
+        self._board[6][0] = Soldier('black', 6, 0, self._board, 's')
+        self._board[6][2] = Soldier('black', 6, 2, self._board, 's')
+        self._board[6][4] = Soldier('black', 6, 4, self._board, 's')
+        self._board[6][6] = Soldier('black', 6, 6, self._board, 's')
+        self._board[6][8] = Soldier('black', 6, 8, self._board, 's')
+
+        # init LinkedList for player Pieces
+        self._ll_red = LinkedList()
+        self._ll_black = LinkedList()
+
+        # populate LinkedLists
+        for i in range(0, len(self._board)):
+            for j in range(0, len(self._board[i])):
+                if self._board[i][j] != '_':
+                    if self._board[i][j].get_player() == 'red':
+                        self._ll_red.add(self._board[i][j])
+                    else:
+                        self._ll_black.add(self._board[i][j])
+
+    def get_ll_red(self):
+        """
+        gives the linked list for red's Pieces
+        :return: LinkedList
+        """
+        return self._ll_red
+
+    def get_ll_black(self):
+        """
+        gives the linked list for black's Pieces
+        :return: LinkedList
+        """
+        return self._ll_black
 
     def get_piece(self, r, c):
         """
@@ -255,7 +402,6 @@ class Board:
                     print(self._board[i][j])
                     continue
                 print(self._board[i][j], end=" ")
-
 
 
 class Piece:
@@ -455,6 +601,21 @@ class Piece:
 
         return result
 
+    def make_move(self, r, c):
+        """
+        moves Piece if valid move and returns True, returns False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        # update board
+        self._board.update_board(r, c, self._board[self._row][self._col])
+        self._board.update_board(self._row, self._col, '_')
+
+        # update self
+        self.update_piece(r, c)
+
 
 class General(Piece):
     """
@@ -498,14 +659,13 @@ class General(Piece):
         """
         return self.is_orthogonal(r, c) and self.one_point(r, c)
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the General to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
         """
-
         # one point orthogonal?
         # in castle?
         # across from general?
@@ -529,14 +689,22 @@ class General(Piece):
 
         # in check?
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
+
+    def make_move(self, r, c):
+        """
+        moves the General to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        result = self._is_valid(r, c)
+
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Advisor(Piece):
@@ -565,9 +733,9 @@ class Advisor(Piece):
         """
         return self.is_diagonal(r, c) and self.one_point(r, c)
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Advisor to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
@@ -588,14 +756,22 @@ class Advisor(Piece):
         if self.player_piece(r, c):
             return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
+
+    def make_move(self, r, c):
+        """
+        moves the Advisor to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        result = self._is_valid(r, c)
+
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Elephant(Piece):
@@ -624,9 +800,9 @@ class Elephant(Piece):
         """
         return self.is_diagonal(r, c) and abs(self._row - r) == 2
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Elephant to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
@@ -647,14 +823,23 @@ class Elephant(Piece):
         if self.player_piece(r, c):
             return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
+
+    def make_move(self, r, c):
+        """
+        moves the Elephant to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        result = self._is_valid(r, c)
+
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Horse(Piece):
@@ -705,12 +890,12 @@ class Horse(Piece):
             else:
                 return self.blocked(self._row, c+1)    # left position
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Horse to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
-        :return:
+        :return: bool
         """
 
         # 1. one point orthogonally, one point diagonally
@@ -724,14 +909,23 @@ class Horse(Piece):
         if self._blocked(r, c):
             return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
+
+    def make_move(self, r, c):
+        """
+        moves the Horse to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        result = self._is_valid(r, c)
+
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Chariot(Piece):
@@ -751,9 +945,9 @@ class Chariot(Piece):
         # inherit from Piece
         super().__init__(player, r, c, board, name)
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Chariot to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
@@ -773,14 +967,21 @@ class Chariot(Piece):
         if not self.player_piece(r, c):
             return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
+    def make_move(self, r, c):
+        """
+        moves the Chariot to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
 
-        # update self
-        self.update_piece(r, c)
+        result = self._is_valid(r, c)
 
-        return True
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Cannon(Piece):
@@ -809,9 +1010,9 @@ class Cannon(Piece):
         """
         return self._player != self._board[r][c].get_player()
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Cannon to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
@@ -838,14 +1039,23 @@ class Cannon(Piece):
         if not self.player_piece(r, c):
             return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
+
+    def make_move(self, r, c):
+        """
+        moves the Cannon to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+
+        result = self._is_valid(r, c)
+
+        if result:
+            super().make_move(r, c)
+            return result
+
+        return False
 
 
 class Soldier(Piece):
@@ -883,9 +1093,9 @@ class Soldier(Piece):
         """
         return self.one_point(r, c) and abs(self._col - c) == 1
 
-    def make_move(self, r, c):
+    def _is_valid(self, r, c):
         """
-        moves the Soldier to the given position
+        True if move is valid, False otherwise
         :param r: int
         :param c: int
         :return: bool
@@ -912,20 +1122,23 @@ class Soldier(Piece):
             if not self._is_forward(r, c):
                 return False
 
-        # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
-
-        # update self
-        self.update_piece(r, c)
-
         return True
 
+    def make_move(self, r, c):
+        """
+        moves the Soldier to the given position
+        :param r: int
+        :param c: int
+        :return: bool
+        """
 
-class Node:
-    """"""
+        result = self._is_valid(r, c)
 
+        if result:
+            super().make_move(r, c)
+            return result
 
+        return False
 
 
 game = XiangqiGame()
