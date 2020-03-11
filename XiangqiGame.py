@@ -13,14 +13,12 @@ class XiangqiGame:
         init the game
         """
         self._game_state = 'UNFINISHED'                 # 'UNFINISHED', 'RED_WON', 'BLACK_WON'
-        self._red_in_check = False
-        self._black_in_check = False
         self._turn = 'red'                              # red starts
         self._board = Board()
         self._l_red = self._board.get_l_red()           # red's Pieces
         self._l_black = self._board.get_l_black()       # black's Pieces
-        self._red_gen = self._board[0][4]               # red General
-        self._black_gen = self._board[9][4]             # black General
+        self._red_gen = self._board.get_piece(0, 4)     # red General
+        self._black_gen = self._board.get_piece(9, 4)   # black General
 
     def get_game_state(self):
         """
@@ -44,18 +42,6 @@ class XiangqiGame:
         """
         return self._board
 
-    def _update_check(self, player, state):
-        """
-        sets player to state
-        :param player: str ('red' or 'black')
-        :param state: bool
-        :return: n/a
-        """
-        if player == 'red':
-            self._red_in_check = state
-        else:
-            self._black_in_check = state
-
     def is_in_check(self, player):
         """
         tells if given player is in check
@@ -63,9 +49,18 @@ class XiangqiGame:
         :return: bool
         """
         if player == 'red':
-            for piece in range(0, len(self._l_black)):
-                if piece.is_valid(self._black)
-        return self._black_in_check
+            for piece in self._l_black:
+                if piece.is_valid(self._red_gen.get_row(), self._red_gen.get_col()):
+                    return True
+        else:
+            for piece in self._l_red:
+                if piece.is_valid(self._black_gen.get_row(), self._black_gen.get_col()):
+                    return True
+        return False
+
+    def _checkmate(self):
+        """"""
+
 
     def _update_turn(self):
         """
@@ -157,13 +152,18 @@ class XiangqiGame:
             return False
 
         # make the move
-        result = self._board[pos[0]][pos[1]].make_move(pos[2], pos[3])
+        result = self._board.get_piece(0, 1).make_move(pos[2], pos[3])
 
         # update player's turn
         self._update_turn()
 
         # update game state
         # TODO update the game state after making a move
+        if self.is_in_check(self._turn):        # if other play in check
+
+
+        # TODO implement stalemate
+
 
         return result
 
@@ -500,6 +500,8 @@ class Piece:
 
         # update self
         self.update_piece(r, c)
+
+        # TODO update player Pieces lists
 
 
 class General(Piece):
