@@ -27,13 +27,16 @@ class XiangqiGame:
         """
         return self._game_state
 
-    def _set_game_state(self, state):
+    def _update_game_state(self, player):
         """
         update the game state
-        :param state: str
+        :param player: str ('red' or 'black')
         :return: n/a
         """
-        self._game_state = state
+        if player == 'red':
+            self._game_state = 'BLACK_WON'
+        else:
+            self._game_state = 'RED_WON'
 
     def get_board(self):
         """
@@ -80,13 +83,21 @@ class XiangqiGame:
             for piece in self._l_red:
                 for i in range(0, len(self._board.get_board())):
                     for j in range(0, len(self._board.get_board()[i])):
-                        if piece.is_valid(i, j) and not self.is_in_check(player):   # if the piece makes this move, player still in check?
+                        if piece.is_valid(i, j):
+                            piece.make_move(i, j)
+                            if self.is_in_check(player):   # if the piece makes this move, player still in check?
+                                self._board.undo()
+                                continue
                             return False
         else:
             for piece in self._l_black:
                 for i in range(0, len(self._board.get_board())):
                     for j in range(0, len(self._board.get_board()[i])):
-                        if piece.is_valid(i, j) and not self.is_in_check(player):
+                        if piece.is_valid(i, j):
+                            piece.make_move(i, j)
+                            if self.is_in_check(player):   # if the piece makes this move, player still in check?
+                                self._board.undo()
+                                continue
                             return False
         return True
 
@@ -190,18 +201,19 @@ class XiangqiGame:
         # make the move
         result = self._board.get_piece(pos[0], pos[1]).make_move(pos[2], pos[3])
 
+        # move you in check?
+        if self.is_in_check(self._turn):
+            self._board.undo()
+            return False
+
         # update player's turn
         self._update_turn()
 
         # update game state
-        # TODO update the game state after making a move
         if self._checkmate(self._turn):
-            if self._turn == 'red':
-
-
+            self._update_game_state(self._turn)
 
         # TODO implement stalemate
-
 
         return result
 
@@ -268,7 +280,7 @@ class Board:
 
         # init data members for undo()
         self._last_move = []            # [row_s, col_s, row_t, col_t]
-        self._last_piece = None
+        self._last_cap_piece = None
 
     def get_l_red(self):
         """
@@ -310,7 +322,33 @@ class Board:
         """
         self._board[r][c] = item
 
+    def set_last_move(self, last_list):
+        """
+        updates self._last_move
+        :param last_list: [int row_s, int col_s, int row_t, int col_t]
+        :return: n/a
+        """
+        self._last_move = last_list
+
+    def set_last_piece(self, item):
+        """
+        updates self._last_piece
+        :param item: Piece or '_'
+        :return: n/A
+        """
+        self._last_cap_piece = item
+
     def undo(self):
+        """
+        undoes the last move
+        :return: n/a
+        """
+
+        # return Piece to starting position
+        self._board[self._last_move[0]][self._last_move[1]] = self._board[self._last_move[2]][self._last_move[3]]
+
+        # return captured Piece or empty position
+        self._board[self._last_move[2]][self._last_move[3]] = self._last_cap_piece
 
     def print_board(self):
         """
@@ -493,7 +531,6 @@ class Piece:
         :param c: int
         :return: bool
         """
-        # TODO use in conjunction with blocked
         return self._board[r][c].get_player() == self.get_player()
 
     def blocked(self, r, c):
@@ -554,19 +591,12 @@ class Piece:
         :return: bool
         """
 
-        # update Pieces lists
-        if self._captured(r, c):
-            if self.get_player() == 'red':
-
-
         # update board
         self._board.update_board(r, c, self._board[self._row][self._col])       # end
         self._board.update_board(self._row, self._col, '_')                     # start
 
         # update self
         self.update_piece(r, c)
-
-        # TODO update player Pieces lists
 
 
 class General(Piece):
@@ -621,7 +651,6 @@ class General(Piece):
         # one point orthogonal?
         # in castle?
         # across from general?
-        # TODO not in check following move
 
         # one point orthogonal?
         if not self._one_orthogonal(r, c):
@@ -640,6 +669,7 @@ class General(Piece):
             return False
 
         # in check?
+        if
 
         return True
 
