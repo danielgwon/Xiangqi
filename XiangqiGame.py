@@ -17,8 +17,8 @@ class XiangqiGame:
         self._black_in_check = False
         self._turn = 'red'                              # red starts
         self._board = Board()
-        self._ll_red = self._board.get_ll_red()         # red's Pieces
-        self._ll_black = self._board.get_ll_black()     # black's Pieces
+        self._l_red = self._board.get_l_red()           # red's Pieces
+        self._l_black = self._board.get_l_black()       # black's Pieces
         self._red_gen = self._board[0][4]               # red General
         self._black_gen = self._board[9][4]             # black General
 
@@ -63,7 +63,8 @@ class XiangqiGame:
         :return: bool
         """
         if player == 'red':
-            while self._ll_red
+            for piece in range(0, len(self._l_black)):
+                if piece.is_valid(self._black)
         return self._black_in_check
 
     def _update_turn(self):
@@ -167,122 +168,6 @@ class XiangqiGame:
         return result
 
 
-class Node:
-    """Represents a node to be used in a linked list"""
-
-    def __init__(self, data):
-        """
-        init the Node
-        :param data: Piece
-        """
-        self.data = data
-        self.next = None
-
-
-class LinkedList:
-    """Represents a linked list that connects Nodes"""
-
-    def __init__(self):
-        """
-        init the LinkedList
-        """
-        self.head = None
-
-    def rec_add(self, val, current):
-        """
-        A recursive helper method for the add method
-        :param val: Piece
-        :param current: Node
-        :return: n/a
-        """
-
-        # if the list is empty
-        if self.head is None:
-            self.head = Node(val)
-            return
-
-        if current.next is None:                # if at end of list
-            current.next = Node(val)
-        else:
-            self.rec_add(val, current.next)     # continue until None reached
-
-    def add(self, val):
-        """
-        Adds a node containing val to the linked list
-        :param val: Piece
-        :return: n/a
-        """
-        self.rec_add(val, self.head)
-
-    def rec_display(self, current):
-        """
-        A recursive helper method for the display method
-        :param current: Node
-        :return: n/a
-        """
-        if current is None:
-            print()
-        else:
-            print(current.data.get_name(), end=' ')
-            self.rec_display(current.next)
-
-    def display(self):
-        """
-        Prints out the values in the linked list
-        :return: str
-        """
-        self.rec_display(self.head)
-
-    def rec_remove(self, val, current, previous=''):
-        """
-        A recursive helper method for the remove method
-        :param val: Piece
-        :param current: Node
-        :param previous: Node
-        :return: n/a
-        """
-
-        # if the list is empty or val is not in it
-        if current is None:
-            return
-
-        if current.data == val:             # if we find the value
-            if self.head.data == val:       # if removing head value
-                self.head = current.next
-            else:
-                previous.next = current.next
-        else:
-            self.rec_remove(val, current.next, current)
-
-    def remove(self, val):
-        """
-        Removes the node containing val from the linked list
-        :param val: Piece
-        :return: n/a
-        """
-        self.rec_remove(val, self.head)
-
-    def get_data(self, current):
-        """
-        gives the value of each item in the linked list
-        :param current: Node
-        :return: Piece or None
-        """
-        if current is None:
-            return None
-        else:
-            return current.data
-
-    def check(self, r, c):
-        """
-        True if move is possible, False if not
-        :param r: int
-        :param c: int
-        :return: bool
-        """
-        self.data.make_move(r, c)
-
-
 class Board:
     """
     Creates a Xiangqi board
@@ -330,32 +215,32 @@ class Board:
         self._board[6][6] = Soldier('black', 6, 6, self._board, 's')
         self._board[6][8] = Soldier('black', 6, 8, self._board, 's')
 
-        # init LinkedList for player Pieces
-        self._ll_red = LinkedList()
-        self._ll_black = LinkedList()
+        # init list for player Pieces
+        self._l_red = []
+        self._l_black = []
 
         # populate LinkedLists
         for i in range(0, len(self._board)):
             for j in range(0, len(self._board[i])):
                 if self._board[i][j] != '_':
                     if self._board[i][j].get_player() == 'red':
-                        self._ll_red.add(self._board[i][j])
+                        self._l_red.append(self._board[i][j])
                     else:
-                        self._ll_black.add(self._board[i][j])
+                        self._l_black.append(self._board[i][j])
 
-    def get_ll_red(self):
+    def get_l_red(self):
         """
         gives the linked list for red's Pieces
         :return: LinkedList
         """
-        return self._ll_red
+        return self._l_red
 
-    def get_ll_black(self):
+    def get_l_black(self):
         """
         gives the linked list for black's Pieces
         :return: LinkedList
         """
-        return self._ll_black
+        return self._l_black
 
     def get_piece(self, r, c):
         """
@@ -659,7 +544,7 @@ class General(Piece):
         """
         return self.is_orthogonal(r, c) and self.one_point(r, c)
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -698,7 +583,7 @@ class General(Piece):
         :param c: int
         :return: bool
         """
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -733,7 +618,7 @@ class Advisor(Piece):
         """
         return self.is_diagonal(r, c) and self.one_point(r, c)
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -765,7 +650,7 @@ class Advisor(Piece):
         :param c: int
         :return: bool
         """
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -800,7 +685,7 @@ class Elephant(Piece):
         """
         return self.is_diagonal(r, c) and abs(self._row - r) == 2
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -833,7 +718,7 @@ class Elephant(Piece):
         :return: bool
         """
 
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -890,7 +775,7 @@ class Horse(Piece):
             else:
                 return self.blocked(self._row, c+1)    # left position
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -919,7 +804,7 @@ class Horse(Piece):
         :return: bool
         """
 
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -945,7 +830,7 @@ class Chariot(Piece):
         # inherit from Piece
         super().__init__(player, r, c, board, name)
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -975,7 +860,7 @@ class Chariot(Piece):
         :return: bool
         """
 
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -1010,7 +895,7 @@ class Cannon(Piece):
         """
         return self._player != self._board[r][c].get_player()
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -1049,7 +934,7 @@ class Cannon(Piece):
         :return: bool
         """
 
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
@@ -1093,7 +978,7 @@ class Soldier(Piece):
         """
         return self.one_point(r, c) and abs(self._col - c) == 1
 
-    def _is_valid(self, r, c):
+    def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
         :param r: int
@@ -1132,7 +1017,7 @@ class Soldier(Piece):
         :return: bool
         """
 
-        result = self._is_valid(r, c)
+        result = self.is_valid(r, c)
 
         if result:
             super().make_move(r, c)
