@@ -58,6 +58,18 @@ class XiangqiGame:
                     return True             # red can capture black General
         return False
 
+    def _update_list(self, player, piece):
+        """
+        removes a captured Piece from the appropriate player
+        :param player: str ('red' or 'black')
+        :param piece: Piece
+        :return: n/a
+        """
+        if player == 'red':
+            self._l_red.remove(piece)
+        else:
+            self._l_black.remove(piece)
+
     def _checkmate(self, player):
         """
         True if player is checkmated, False otherwise
@@ -167,8 +179,16 @@ class XiangqiGame:
         if not self._is_player_piece(pos[0], pos[1]):
             return False
 
+        # valid move?
+        if not self._board.get_piece(pos[0], pos[1]).is_valid(pos[2], pos[3]):
+            return False
+
+        # piece captured?
+        if self._board.get_piece(pos[0], pos[1]).captured(pos[2], pos[3]):
+            self._update_list(self._board.get_piece(pos[2], pos[3]).get_player(), self._board.get_piece(pos[2], pos[3]))
+
         # make the move
-        result = self._board.get_piece(0, 1).make_move(pos[2], pos[3])
+        result = self._board.get_piece(pos[0], pos[1]).make_move(pos[2], pos[3])
 
         # update player's turn
         self._update_turn()
@@ -237,7 +257,7 @@ class Board:
         self._l_red = []
         self._l_black = []
 
-        # populate LinkedLists
+        # populate lists
         for i in range(0, len(self._board)):
             for j in range(0, len(self._board[i])):
                 if self._board[i][j] != '_':
@@ -245,6 +265,10 @@ class Board:
                         self._l_red.append(self._board[i][j])
                     else:
                         self._l_black.append(self._board[i][j])
+
+        # init data members for undo()
+        self._last_move = []            # [row_s, col_s, row_t, col_t]
+        self._last_piece = None
 
     def get_l_red(self):
         """
@@ -286,6 +310,8 @@ class Board:
         """
         self._board[r][c] = item
 
+    def undo(self):
+
     def print_board(self):
         """
         prints the board
@@ -318,7 +344,7 @@ class Piece:
         :param player: str ('red' or 'black')
         :param r: int
         :param c: int
-        :param board: Board
+        :param board: [[]]
         """
         self._player = player
         self._row = r
@@ -511,6 +537,15 @@ class Piece:
 
         return result
 
+    def captured(self, r, c):
+        """
+        True if opponent's piece is captured, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        return self._board[r][c] != '_'
+
     def make_move(self, r, c):
         """
         moves Piece if valid move and returns True, returns False otherwise
@@ -519,9 +554,14 @@ class Piece:
         :return: bool
         """
 
+        # update Pieces lists
+        if self._captured(r, c):
+            if self.get_player() == 'red':
+
+
         # update board
-        self._board.update_board(r, c, self._board[self._row][self._col])
-        self._board.update_board(self._row, self._col, '_')
+        self._board.update_board(r, c, self._board[self._row][self._col])       # end
+        self._board.update_board(self._row, self._col, '_')                     # start
 
         # update self
         self.update_piece(r, c)
