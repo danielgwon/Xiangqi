@@ -51,16 +51,32 @@ class XiangqiGame:
         if player == 'red':
             for piece in self._l_black:
                 if piece.is_valid(self._red_gen.get_row(), self._red_gen.get_col()):
-                    return True
+                    return True             # black can capture red General
         else:
             for piece in self._l_red:
                 if piece.is_valid(self._black_gen.get_row(), self._black_gen.get_col()):
-                    return True
+                    return True             # red can capture black General
         return False
 
-    def _checkmate(self):
-        """"""
-
+    def _checkmate(self, player):
+        """
+        True if player is checkmated, False otherwise
+        :param player: str ('red' or 'black')
+        :return: bool
+        """
+        if player == 'red':
+            for piece in self._l_red:
+                for i in range(0, len(self._board.get_board())):
+                    for j in range(0, len(self._board.get_board()[i])):
+                        if piece.is_valid(i, j) and not self.is_in_check(player):   # if the piece makes this move, player still in check?
+                            return False
+        else:
+            for piece in self._l_black:
+                for i in range(0, len(self._board.get_board())):
+                    for j in range(0, len(self._board.get_board()[i])):
+                        if piece.is_valid(i, j) and not self.is_in_check(player):
+                            return False
+        return True
 
     def _update_turn(self):
         """
@@ -159,7 +175,9 @@ class XiangqiGame:
 
         # update game state
         # TODO update the game state after making a move
-        if self.is_in_check(self._turn):        # if other play in check
+        if self._checkmate(self._turn):
+            if self._turn == 'red':
+
 
 
         # TODO implement stalemate
@@ -335,6 +353,13 @@ class Piece:
         :return: str
         """
         return self._name
+
+    def get_board(self):
+        """
+        gives the board lists
+        :return: [[]]
+        """
+        return self._board
 
     def update_piece(self, r, c):
         """
