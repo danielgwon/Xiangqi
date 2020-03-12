@@ -120,6 +120,13 @@ class XiangqiGame:
                     return True             # red can capture black General
         return False
 
+    def get_board(self):
+        """
+        gives the board
+        :return: Board
+        """
+        return self._board
+
     # def _update_list(self, player, piece):
     #     """
     #     removes a captured Piece from the appropriate player
@@ -590,7 +597,7 @@ class Piece:
         """
         return self._board[r][c] != '_'
 
-    def intervening(self, r, c):
+    def intervening_hor(self, r, c):
         """
         True if Piece in way, False otherwise
         Chariot and Cannon only
@@ -801,6 +808,27 @@ class Elephant(Piece):
         """
         return self.is_diagonal(r, c) and abs(self._row - r) == 2
 
+    def _intervening_diag(self, r, c):
+        """
+        True if an intervening piece exists, False otherwise
+        :param r: int
+        :param c: int
+        :return: bool
+        """
+        if r > self._row and c > self._col:         # quadrant one
+            if self._board[r-1][c-1] != '_':
+                return True
+        elif r > self._row and c < self._col:       # quadrant two
+            if self._board[r-1][c+1] != '_':
+                return True
+        elif r < self._row and c < self._col:       # quadrant three
+            if self._board[r+1][c+1] != '_':
+                return True
+        elif r < self._row and c > self._col:       # quadrant four
+            if self._board[r+1][c-1] != '_':
+                return True
+        return False
+
     def is_valid(self, r, c):
         """
         True if move is valid, False otherwise
@@ -821,7 +849,8 @@ class Elephant(Piece):
             return False
 
         # intervening piece?
-        if
+        if self._intervening_diag(r, c):
+            return False
 
         return True
 
@@ -856,10 +885,6 @@ class Horse(Piece):
 
         # inherit from Piece
         super().__init__(player, r, c, board, name)
-        self._valid_moves = [[self._row+2, self._col-1], [self._row+2, self._col+1],
-                             [self._row-2, self._col-1], [self._row+2, self._col+1],
-                             [self._row+1, self._col+2], [self._row-1, self._col+2],
-                             [self._row+1, self._col-2], [self._row-1, self._col-2]]
 
     def _is_vertical(self, r):
         """
@@ -903,7 +928,11 @@ class Horse(Piece):
             return False
 
         # is the move valid?
-        if [r, c] not in self._valid_moves:
+        valid_moves = [[self._row + 2, self._col - 1], [self._row + 2, self._col + 1],
+                       [self._row - 2, self._col - 1], [self._row - 2, self._col + 1],
+                       [self._row + 1, self._col + 2], [self._row - 1, self._col + 2],
+                       [self._row + 1, self._col - 2], [self._row - 1, self._col - 2]]
+        if [r, c] not in valid_moves:
             return False
 
         # move blocked?
@@ -962,7 +991,7 @@ class Chariot(Piece):
             return False
 
         # piece in way?
-        if self.intervening(r, c):
+        if self.intervening_hor(r, c):
             return False
 
         return True
@@ -1029,11 +1058,11 @@ class Cannon(Piece):
         # move to capture?
         if self._opponent_piece(r, c):
             # screen in place?
-            if self.intervening(r, c) > 1:
+            if self.intervening_hor(r, c) > 1:
                 return False
 
         # piece in way?
-        if self.intervening(r, c):
+        if self.intervening_hor(r, c):
             return False
 
         return True
@@ -1157,4 +1186,13 @@ print(game.make_move('a4', 'a5'))
 print(game.make_move('a6', 'a5'))
 print(game.make_move('c4', 'c5'))
 print(game.make_move('a5', 'b5'))
+print(game.make_move('g1', 'e3'))
+print(game.make_move('b5', 'b4'))
+print(game.make_move('c5', 'c6'))
+print(game.make_move('b4', 'c4'))
+print(game.make_move('e4', 'e5'))
+print(game.make_move('c4', 'd4'))
+print(game.make_move('e3', 'g5'))
+print(game.make_move('b10', 'c8'))
+print(game.make_move('b1', 'c3'))
 game.get_board().print_board()
