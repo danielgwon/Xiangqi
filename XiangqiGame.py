@@ -90,8 +90,11 @@ class XiangqiGame:
         self._update_turn()
 
         # update game state
-        # if self._checkmate(self._turn):
-        #     self._game_state = ''
+        if self._checkmate(self._turn):
+            if self._turn == 'red':
+                self._game_state = 'BLACK_WON'
+            else:
+                self._game_state = 'RED_WON'
 
         # TODO implement stalemate
 
@@ -139,33 +142,33 @@ class XiangqiGame:
     #     else:
     #         self._l_black.remove(piece)
 
-    # def _checkmate(self, player):
-    #     """
-    #     True if player is checkmated, False otherwise
-    #     :param player: str ('red' or 'black')
-    #     :return: bool
-    #     """
-    #     if player == 'red':
-    #         for piece in self._l_red:
-    #             for i in range(0, len(self._board.get_board())):
-    #                 for j in range(0, len(self._board.get_board()[i])):
-    #                     if piece.is_valid(i, j):
-    #                         piece.make_move(i, j)
-    #                         if self.is_in_check(player):   # if the piece makes this move, player still in check?
-    #                             self._board.undo()
-    #                             continue
-    #                         return False
-    #     else:
-    #         for piece in self._l_black:
-    #             for i in range(0, len(self._board.get_board())):
-    #                 for j in range(0, len(self._board.get_board()[i])):
-    #                     if piece.is_valid(i, j):
-    #                         piece.make_move(i, j)
-    #                         if self.is_in_check(player):   # if the piece makes this move, player still in check?
-    #                             self._board.undo()
-    #                             continue
-    #                         return False
-    #     return True
+    def _checkmate(self, player):
+        """
+        True if player is checkmated, False otherwise
+        :param player: str ('red' or 'black')
+        :return: bool
+        """
+        if player == 'red':
+            for piece in self._r_pieces:
+                for r in range(0, len(self._board.get_board())):
+                    for c in range(0, len(self._board.get_board()[r])):
+                        if piece.is_valid(r, c):
+                            piece.move(r, c)
+                            if self.is_in_check(player):   # if the piece makes this move, player still in check?
+                                self._board.undo()
+                                continue
+                            return False
+        else:
+            for piece in self._b_pieces:
+                for r in range(0, len(self._board.get_board())):
+                    for c in range(0, len(self._board.get_board()[r])):
+                        if piece.is_valid(r, c):
+                            piece.move(r, c)
+                            if self.is_in_check(player):   # if the piece makes this move, player still in check?
+                                self._board.undo()
+                                continue
+                            return False
+        return True
 
     def _ax_from_gen(self, r, c):
         """
@@ -1035,7 +1038,9 @@ class Cannon(Piece):
         :param c: int
         :return: bool
         """
-        return self._player != self._board[r][c].get_player()
+        if self._board[r][c] != '_':
+            return self._player != self._board[r][c].get_player()
+        return False
 
     def is_valid(self, r, c):
         """
@@ -1058,7 +1063,9 @@ class Cannon(Piece):
         # move to capture?
         if self._opponent_piece(r, c):
             # screen in place?
-            if self.intervening_hor(r, c) > 1:
+            if self.intervening_hor(r, c) == 1:
+                return True
+            else:
                 return False
 
         # piece in way?
@@ -1195,4 +1202,13 @@ print(game.make_move('c4', 'd4'))
 print(game.make_move('e3', 'g5'))
 print(game.make_move('b10', 'c8'))
 print(game.make_move('b1', 'c3'))
+print(game.make_move('c8', 'e9'))
+print(game.make_move('a1', 'a8'))
+print(game.make_move('h8', 'h4'))
+print(game.make_move('h3', 'g3'))
+print(game.make_move('b8', 'i8'))
+print(game.make_move('g3', 'g2'))
+print(game.make_move('h4', 'h2'))
+print(game.is_in_check('red'))
+print(game.make_move('e2', 'e1'))
 game.get_board().print_board()
